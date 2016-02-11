@@ -28,14 +28,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-}
-
--(void)viewWillAppear:(BOOL)animated{
     self.locationManager = [[CLLocationManager alloc]init];
     self.locationManager.delegate = self;
     self.locationManager.desiredAccuracy = kCLLocationAccuracyBest;
     [self.locationManager requestWhenInUseAuthorization];
     self.geocoder = [[CLGeocoder alloc]init];
+    [self.locationManager startUpdatingLocation];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
     [self.locationManager startUpdatingLocation];
 }
 
@@ -51,6 +52,7 @@
                                  placemark.administrativeArea,
                                  placemark.postalCode,
                                  placemark.country];
+            NSLog(@"%@", self.currentAddress);
         }
      ];
     [self.locationManager stopUpdatingLocation];
@@ -62,18 +64,22 @@
 }
 
 -(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
+    
     id<EZReceiveAddresses> child = (id<EZReceiveAddresses>)[segue destinationViewController];
+    
     NSArray *addresses = nil;
     
     if(self.startAddressField.text.length == 0 || self.destinationAddressField.text.length == 0){
-        addresses = @[self.currentAddress, self.currentAddress];
+        //addresses = @[self.currentAddress, self.currentAddress];
+        NSLog(@"empty") ;
     }
     else{
      
         addresses = @[self.startAddressField.text, self.destinationAddressField.text];
     }
     
-    [child receiveAddresses:addresses];
+    //[child receiveAddresses:addresses];
+    
     
 }
 
