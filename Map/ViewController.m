@@ -25,6 +25,11 @@
 
 @implementation ViewController
 
+
+/*
+ * initilize Location Manger and Geocoder,
+ * update location
+ */
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
@@ -36,12 +41,22 @@
     [self.locationManager startUpdatingLocation];
 }
 
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+ * updaate location after user returns to this view from map view
+ */
 -(void)viewWillAppear:(BOOL)animated{
     [self.locationManager startUpdatingLocation];
 }
 
+/*
+ * get current location
+ */
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(nonnull NSArray<CLLocation *> *)locations{
-
     [self.geocoder reverseGeocodeLocation:[locations lastObject] completionHandler:
         ^(NSArray *placemarks, NSError *error) {
             CLPlacemark *placemark=[placemarks firstObject];
@@ -52,17 +67,19 @@
                                  placemark.administrativeArea,
                                  placemark.postalCode,
                                  placemark.country];
-            NSLog(@"%@", self.currentAddress);
+            //NSLog(@"%@", self.currentAddress);
         }
      ];
     [self.locationManager stopUpdatingLocation];
 }
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
+ // It is 2 am now. Suddenly, I heared a big sound "pong!".
+ // It seems my roommate fell out of bed. haha.
+ // I hope she is fine.
+ 
+/*
+ * set current location as defualt locations of start and destination
+ * send start location and destination to map view,
+ */
 -(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
     
     id<EZReceiveAddresses> child = (id<EZReceiveAddresses>)[segue destinationViewController];
@@ -78,9 +95,7 @@
         addresses = @[self.startAddressField.text, self.destinationAddressField.text];
     }
     
-    //[child receiveAddresses:addresses];
-    
-    
+    [child receiveAddresses:addresses];
 }
 
 

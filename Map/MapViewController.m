@@ -11,8 +11,6 @@
 
 @interface MapViewController ()<CLLocationManagerDelegate, MKMapViewDelegate>
 
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *startAddress;
-@property (weak, nonatomic) IBOutlet UIBarButtonItem *destinationAddress;
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
 
 @property (strong, nonatomic) MKPointAnnotation *startAnno;
@@ -23,6 +21,7 @@
 @property (assign, nonatomic) CLLocationCoordinate2D destinationCoor;
 
 @property (strong, nonatomic) CLLocationManager* locationManager;
+
 @property (weak, nonatomic) IBOutlet UIButton *distanceButton;
 
 @property (assign, nonatomic) BOOL mapIsMoving;
@@ -32,7 +31,9 @@
 
 @implementation MapViewController
 
-
+/*
+ * initilize Location Manager and set up current location point annoation
+ */
 -(void)viewDidLoad{
     //self.startAddress.title = [self.addresses objectAtIndex:0];
     //self.destinationAddress.title = [self.addresses objectAtIndex:1];
@@ -44,7 +45,35 @@
     self.mapIsMoving = NO;
 }
 
+/*
+ * receive two string style addresses,
+ * convert them to Coordinate2D
+ */
+- (void) receiveAddresses:(NSArray *)addresses{
+    //NSLog(@"receviedAddress");
+    NSLog(@"%@, \n %@", [addresses objectAtIndex:0], [addresses objectAtIndex:1]);
+    CLGeocoder *geocoder = [[CLGeocoder alloc]init];
+    
+    [geocoder geocodeAddressString:[addresses objectAtIndex:0] completionHandler:
+     ^(NSArray *placemarks, NSError *err){
+         CLPlacemark *placemark = [placemarks firstObject];
+         self.startCoor = placemark.location.coordinate;
+         //NSLog(@"start: %f", self.startCoor.longitude);
+         //NSLog(@"start: %f", self.startCoor.latitude);
+         
+         [geocoder geocodeAddressString:[addresses objectAtIndex:1] completionHandler:
+          ^(NSArray *placemarks, NSError *err){
+              CLPlacemark *placemark = [placemarks firstObject];
+              self.destinationCoor = placemark.location.coordinate;
+              //NSLog(@"destination: %f", self.destinationCoor.longitude);
+          }];
+     }];
+    
+}
 
+/*
+ * put a point annnotation on start location
+ */
 - (IBAction)pointToStartLocation:(id)sender {
     self.startAnno = [[MKPointAnnotation alloc]init];
     self.startAnno.coordinate = self.startCoor;
@@ -54,6 +83,9 @@
     [self cenerRegion:self.startAnno];
 }
 
+/*
+ * put a point annotation on destination
+ */
 - (IBAction)pointToDestination:(id)sender {
     self.destinationAnno = [[MKPointAnnotation alloc]init];
     self.destinationAnno.coordinate = self.destinationCoor;
@@ -73,12 +105,14 @@
 }
 
 - (IBAction)caculateDistance:(id)sender {
-    
     CLLocation *start = [[CLLocation alloc]initWithLatitude:self.startCoor.latitude longitude:self.startCoor.longitude];
     CLLocation *end = [[CLLocation alloc]initWithLatitude:self.destinationCoor.latitude longitude:self.destinationCoor.longitude];
     [self.distanceButton setTitle:[NSString stringWithFormat:@"%.2fm",[start distanceFromLocation:end]] forState:UIControlStateNormal];
 }
 
+/*
+ * track user's current location if switcher is on
+ */
 - (IBAction)switchChanged:(id)sender {
     if(self.switcher.isOn){
         self.mapView.showsUserLocation = YES;
@@ -90,6 +124,9 @@
     }
 }
 
+/*
+ * center user's current location if user doesn't move map
+ */
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations{
     self.currentAnno.coordinate = locations.lastObject.coordinate;
     if (self.mapIsMoving == NO) {
@@ -104,29 +141,6 @@
 - (void)mapView:(MKMapView *)mapView regionDidChangeAnimated:(BOOL)animated{
     self.mapIsMoving = NO;
 }
-
-- (void) receiveAddresses:(NSArray *)addresses{
-    //NSLog(@"receviedAddress");
-   NSLog(@"%@, \n %@", [addresses objectAtIndex:0], [addresses objectAtIndex:1]);
-    CLGeocoder *geocoder = [[CLGeocoder alloc]init];
-    
-    [geocoder geocodeAddressString:[addresses objectAtIndex:0] completionHandler:
-     ^(NSArray *placemarks, NSError *err){
-         CLPlacemark *placemark = [placemarks firstObject];
-         self.startCoor = placemark.location.coordinate;
-         NSLog(@"start: %f", self.startCoor.longitude);
-         NSLog(@"start: %f", self.startCoor.latitude);
-         
-         [geocoder geocodeAddressString:[addresses objectAtIndex:1] completionHandler:
-          ^(NSArray *placemarks, NSError *err){
-              CLPlacemark *placemark = [placemarks firstObject];
-              self.destinationCoor = placemark.location.coordinate;
-              //NSLog(@"destination: %f", self.destinationCoor.longitude);
-          }];
-     }];
-    
-}
-
 
 @end
 

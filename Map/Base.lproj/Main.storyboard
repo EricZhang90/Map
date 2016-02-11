@@ -170,10 +170,8 @@
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="destinationAddress" destination="h5d-7I-eBk" id="5yp-ad-VIJ"/>
                         <outlet property="distanceButton" destination="0rk-Hw-xxN" id="wLG-95-MvJ"/>
                         <outlet property="mapView" destination="VCa-ug-bzi" id="m51-Cv-9wa"/>
-                        <outlet property="startAddress" destination="Jbi-3S-ehy" id="YP5-DD-39c"/>
                         <outlet property="switcher" destination="Zcp-ks-IxY" id="qGW-4q-2xw"/>
                     </connections>
                 </viewController>
